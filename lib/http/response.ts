@@ -4,19 +4,19 @@ enum ResponseStatus {
   Success = 'success',
 }
 
-type ErrorResponse = {
+export type ErrorResponse = {
   status: ResponseStatus.Error;
   message: string;
 };
 
-type FailResponse = {
+export type FailResponse<T = any> = {
   status: ResponseStatus.Fail;
-  data: any;
+  data: T;
 };
 
-type SuccessResponse = {
+export type SuccessResponse<T = any> = {
   status: ResponseStatus.Success;
-  data: any;
+  data: T;
 };
 
 export function failure<T = any>(data: T): FailResponse {
@@ -31,4 +31,22 @@ export function success<T = any>(data: T): SuccessResponse {
     status: ResponseStatus.Success,
     data,
   };
+}
+
+export function isErrorResponse(response: any): response is ErrorResponse {
+  return (
+    !!response &&
+    typeof response === 'object' &&
+    response.status === ResponseStatus.Error &&
+    typeof response.message === 'string'
+  );
+}
+
+export function isFailResponse(response: any): response is FailResponse {
+  return (
+    !!response &&
+    typeof response === 'object' &&
+    response.status === ResponseStatus.Fail &&
+    'data' in response
+  );
 }

@@ -1,7 +1,7 @@
 import { withIronSessionSsr } from 'iron-session/next';
 import type { NextPage } from 'next';
 
-import useSession from '@/hooks/useSession';
+import { sessionOptions } from '@/lib/session/config';
 
 export const getServerSideProps = withIronSessionSsr(
   async function getServerSideProps({ req }) {
@@ -17,14 +17,7 @@ export const getServerSideProps = withIronSessionSsr(
       }),
     };
   },
-  {
-    cookieName: 'myapp_cookiename',
-    password: 'complex_password_at_least_32_characters_long',
-    // secure: true should be used in production (HTTPS) but can't be used in development (HTTP)
-    cookieOptions: {
-      secure: process.env.NODE_ENV === 'production',
-    },
-  }
+  sessionOptions
 );
 
 const Parties: NextPage = ({ user }) => {

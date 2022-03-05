@@ -2,24 +2,40 @@ import { Form, Formik } from 'formik';
 import type { NextPage } from 'next';
 
 import useSession from '@/hooks/useSession';
-import http, { Routes } from '@/lib/http';
+import http, { Routes, SuccessResponse } from '@/lib/http';
+import { isHttpError } from '@/types/response';
+import { User } from '@/types/user';
 
 const initialValues = {
   email: '',
   password: '',
 };
 
+type Response = SuccessResponse<{ user: User }>;
+
 type FormState = typeof initialValues;
 
-const Login: NextPage = () => {
-  const { user, mutateUser } = useSession();
+async function postLogin(values: FormState): Promise<User> {
+  const {
+    data: { user },
+  } = await http.post<Response>(Routes.Sessions, values);
+  return user;
+}
 
-  const handleSubmit = (values: FormState) => {
-    mutateUser(async () => {
-      const response = await http.post(Routes.Sessions, values);
-      console.log('resposne is', response);
-      return response.user;
-    });
+const Login: NextPage = () => {
+  const { setUser, user } = useSession();
+
+  console.log('session user', user);
+
+  const handleSubmit = async (values: FormState) => {
+    try {
+      await setUser(() => postLogin(values));
+    } catch (err) {
+      // Create function to handle errors globally (ex show toast messages)
+      if (isHttpError(err)) {
+        console.log(err.response.data.status);
+      }
+    }
   };
 
   return (

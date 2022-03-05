@@ -2,7 +2,7 @@ import { Form, Formik } from 'formik';
 import type { NextPage } from 'next';
 
 import useSession from '@/hooks/useSession';
-import http from '@/lib/http';
+import http, { Routes } from '@/lib/http';
 
 const initialValues = {
   email: '',
@@ -13,11 +13,11 @@ const initialValues = {
 type FormState = typeof initialValues;
 
 const Signup: NextPage = () => {
-  const { user, mutateUser } = useSession();
+  const { user, setUser } = useSession();
 
   const handleSubmit = (values: FormState) => {
-    mutateUser(async () => {
-      const { user } = await http.post('/registrations', values);
+    setUser(async () => {
+      const { user } = await http.post(Routes.Registrations, values);
       return user;
     });
   };

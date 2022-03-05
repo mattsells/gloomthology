@@ -16,7 +16,7 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
   if (existingUser) {
     return res
       .status(HttpStatus.Conflict)
-      .json(failure({ user: 'A user exists with the provided emaul' }));
+      .json(failure({ user: 'A user exists with the provided email' }));
   }
 
   const encryptedPassword = await bcrypt.hash(req.body.password, 10);
