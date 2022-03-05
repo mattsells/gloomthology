@@ -16,8 +16,9 @@ const Login: NextPage = () => {
 
   const handleSubmit = (values: FormState) => {
     mutateUser(async () => {
-      const { user } = await http.post(Routes.Sessions, values);
-      return user;
+      const response = await http.post(Routes.Sessions, values);
+      console.log('resposne is', response);
+      return response.user;
     });
   };
 

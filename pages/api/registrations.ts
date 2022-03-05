@@ -1,26 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import db from '@/db';
+import { unauthenticated } from '@/lib/session/api';
 import { User } from '@/types/user';
 
 type RegistrationResponse = {
   user: Nullable<User>;
 };
 
-export default async function handler(
+async function post(
   req: NextApiRequest,
   res: NextApiResponse<RegistrationResponse>
 ) {
-  // TODO: Update to use controller function
-  if (req.method === 'POST') {
-    // TODO: Encrypt password
-    const user = await db.user.create({
-      data: {
-        email: req.body.email,
-        encryptedPassword: req.body.password,
-      },
-    });
+  // TODO: Encrypt password
+  const user = await db.user.create({
+    data: {
+      email: req.body.email,
+      encryptedPassword: req.body.password,
+    },
+  });
 
-    res.status(200).json({ user });
-  }
+  res.status(200).json({ user });
 }
+
+export default unauthenticated({ post });
