@@ -21,10 +21,8 @@ export const getServerSideProps = withIronSessionSsr(
   sessionOptions
 );
 
-const Parties: NextPage = () => {
-  // const { user } = useSession();
-
-  return <div>This is the party page</div>;
+const Campaigns: NextPage = () => {
+  return <div>This is the campaigns index</div>;
 };
 
-export default Parties;
+export default Campaigns;

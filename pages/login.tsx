@@ -15,17 +15,14 @@ type Response = SuccessResponse<{ user: User }>;
 
 type FormState = typeof initialValues;
 
+// TODO: Move to reusable function
 async function postLogin(values: FormState): Promise<User> {
-  const {
-    data: { user },
-  } = await http.post<Response>(Routes.Sessions, values);
-  return user;
+  const response = await http.post<Response>(Routes.Sessions, values);
+  return response.data.user;
 }
 
 const Login: NextPage = () => {
   const { setUser, user } = useSession();
-
-  console.log('session user', user);
 
   const handleSubmit = async (values: FormState) => {
     try {

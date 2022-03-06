@@ -20,10 +20,8 @@ export const getServerSideProps = withIronSessionSsr(
   sessionOptions
 );
 
-const Scenarios: NextPage = ({ user }) => {
+const Scenarios: NextPage = () => {
   // const { user } = useSession();
-
-  console.log('user is', user);
 
   return <div>This is the scenarios page</div>;
 };

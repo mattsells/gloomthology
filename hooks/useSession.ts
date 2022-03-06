@@ -8,6 +8,7 @@ export default function useSession() {
   );
 
   return {
+    isLoggedIn: !!user,
     setUser,
     user,
   };

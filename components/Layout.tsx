@@ -10,7 +10,9 @@ export default function Layout({ children }: Props): ReactElement {
   return (
     <>
       <Navbar />
-      <main>{children}</main>
+      <main className="bg-zinc-700 py-10 grow">
+        <div className="container mx-auto">{children}</div>
+      </main>
     </>
   );
 }
