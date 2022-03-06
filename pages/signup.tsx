@@ -6,6 +6,7 @@ import Input from '@/components/Input';
 import Panel from '@/components/Panel';
 import useSession from '@/hooks/useSession';
 import http, { Routes } from '@/lib/http';
+import SignupSchema from '@/schemas/signup';
 
 const initialValues = {
   email: '',
@@ -26,24 +27,38 @@ const Signup: NextPage = () => {
   };
 
   return (
-    <Panel>
-      <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-        {({ errors, handleBlur, handleChange, isSubmitting, values }) => (
+    <Panel className="mx-auto">
+      <Formik
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+        validationSchema={SignupSchema}
+      >
+        {({
+          dirty,
+          errors,
+          handleBlur,
+          handleChange,
+          isSubmitting,
+          isValid,
+          touched,
+          values,
+        }) => (
           <Form>
             <Input
               className="mb-5"
-              errorMessage={errors.email}
+              error={errors.email}
+              isTouched={touched.email}
               label="Email Address"
+              name="email"
               onBlur={handleBlur}
               onChange={handleChange}
-              name="email"
               type="text"
               value={values.email}
             />
 
             <Input
               className="mb-5"
-              errorMessage={errors.password}
+              error={errors.password}
               label="Password"
               onBlur={handleBlur}
               onChange={handleChange}
@@ -54,7 +69,7 @@ const Signup: NextPage = () => {
 
             <Input
               className="mb-6"
-              errorMessage={errors.passwordConfirmation}
+              error={errors.passwordConfirmation}
               label="Confirm Password"
               onBlur={handleBlur}
               onChange={handleChange}
@@ -63,7 +78,11 @@ const Signup: NextPage = () => {
               value={values.passwordConfirmation}
             />
 
-            <Button appearance="primary" type="submit" disabled={isSubmitting}>
+            <Button
+              appearance="primary"
+              disabled={isSubmitting || !isValid || !dirty}
+              type="submit"
+            >
               Sign Up
             </Button>
           </Form>

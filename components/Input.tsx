@@ -16,7 +16,8 @@ import {
 } from 'tailwindcss-classnames';
 
 type Props = React.HTMLProps<HTMLInputElement> & {
-  errorMessage?: string;
+  error?: string;
+  isTouched?: boolean;
   label?: string;
 };
 
@@ -47,17 +48,18 @@ const styles = {
 
 export default function Input({
   className,
-  errorMessage,
+  error,
+  isTouched,
   label,
   ...rest
 }: Props): ReactElement<Props> {
-  const isError = !!errorMessage;
+  const isInvalid = !!(error && isTouched);
 
   return (
     <div className={styles.root(className)}>
       {label && <label className={styles.label}>{label}</label>}
-      <input className={styles.input(isError)} {...rest} />
-      {errorMessage && <p className={styles.error}>{errorMessage}</p>}
+      <input className={styles.input(isInvalid)} {...rest} />
+      {isInvalid && <p className={styles.error}>{error}</p>}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import {
   backgroundColor,
   borderRadius,
   classnames,
+  opacity,
   padding,
   textColor,
   transitionProperty,
@@ -17,7 +18,11 @@ type Props = React.HTMLProps<HTMLButtonElement> & {
 };
 
 const styles = {
-  root: (className: any, appearance: Appearance) => {
+  root: (
+    className: any,
+    appearance: Appearance,
+    isDisabled: boolean | undefined
+  ) => {
     const isPrimary = appearance === 'primary';
 
     return classnames(
@@ -28,8 +33,9 @@ const styles = {
       transitionProperty('transition'),
       backgroundColor({
         'bg-indigo-700': isPrimary,
-        'hover:bg-indigo-800': isPrimary,
-      })
+        'hover:bg-indigo-800': isPrimary && !isDisabled,
+      }),
+      opacity({ 'opacity-80': isDisabled })
     );
   },
 };
@@ -37,7 +43,14 @@ const styles = {
 export default function Button({
   appearance = 'primary',
   className,
+  disabled,
   ...rest
 }: Props): ReactElement<Props> {
-  return <button className={styles.root(className, appearance)} {...rest} />;
+  return (
+    <button
+      className={styles.root(className, appearance, disabled)}
+      disabled={disabled}
+      {...rest}
+    />
+  );
 }
