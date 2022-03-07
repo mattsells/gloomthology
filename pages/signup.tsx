@@ -59,6 +59,7 @@ const Signup: NextPage = () => {
             <Input
               className="mb-5"
               error={errors.password}
+              isTouched={touched.password}
               label="Password"
               onBlur={handleBlur}
               onChange={handleChange}
@@ -70,6 +71,7 @@ const Signup: NextPage = () => {
             <Input
               className="mb-6"
               error={errors.passwordConfirmation}
+              isTouched={touched.passwordConfirmation}
               label="Confirm Password"
               onBlur={handleBlur}
               onChange={handleChange}
