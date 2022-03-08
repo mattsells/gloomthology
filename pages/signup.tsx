@@ -4,6 +4,7 @@ import type { NextPage } from 'next';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import Panel from '@/components/Panel';
+import Text from '@/components/Text';
 import useSession from '@/hooks/useSession';
 import http, { Routes } from '@/lib/http';
 import SignupSchema from '@/schemas/signup';
@@ -28,6 +29,10 @@ const Signup: NextPage = () => {
 
   return (
     <Panel className="mx-auto">
+      <Text as="h1" appearance="header" className="mb-4">
+        Join the Adventure
+      </Text>
+
       <Formik
         initialValues={initialValues}
         onSubmit={handleSubmit}

@@ -51,14 +51,24 @@ export default function Input({
   error,
   isTouched,
   label,
+  name,
   ...rest
 }: Props): ReactElement<Props> {
   const isInvalid = !!(error && isTouched);
 
   return (
     <div className={styles.root(className)}>
-      {label && <label className={styles.label}>{label}</label>}
-      <input className={styles.input(isInvalid)} {...rest} />
+      {label && (
+        <label className={styles.label} htmlFor={name}>
+          {label}
+        </label>
+      )}
+      <input
+        className={styles.input(isInvalid)}
+        id={name}
+        name={name}
+        {...rest}
+      />
       {isInvalid && <p className={styles.error}>{error}</p>}
     </div>
   );

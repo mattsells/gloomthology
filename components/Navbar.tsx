@@ -53,7 +53,7 @@ export default function Navbar() {
                 <>
                   <li className="px-3">
                     <Link href="/signup">
-                      <a className="flex items-center h-14 text-slate-50 text-lg">
+                      <a className="flex items-center h-14 text-indigo-500 text-lg">
                         Sign Up
                       </a>
                     </Link>

@@ -1,8 +1,13 @@
 import { Form, Formik } from 'formik';
 import type { NextPage } from 'next';
 
+import Button from '@/components/Button';
+import Input from '@/components/Input';
+import Panel from '@/components/Panel';
+import Text from '@/components/Text';
 import useSession from '@/hooks/useSession';
 import http, { Routes, SuccessResponse } from '@/lib/http';
+import LoginSchema from '@/schemas/login';
 import { isHttpError } from '@/types/response';
 import { User } from '@/types/user';
 
@@ -36,37 +41,62 @@ const Login: NextPage = () => {
   };
 
   return (
-    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-      {({ handleBlur, handleChange, isSubmitting, values }) => (
-        <Form>
-          <input
-            className="border-solid border-2 border-black"
-            onBlur={handleBlur}
-            onChange={handleChange}
-            name="email"
-            type="text"
-            value={values.email}
-          />
+    <Panel className="mx-auto">
+      <Text as="h1" appearance="header" className="mb-4">
+        Log In
+      </Text>
 
-          <br />
+      <Formik
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+        validationSchema={LoginSchema}
+      >
+        {({
+          dirty,
+          errors,
+          handleBlur,
+          handleChange,
+          isSubmitting,
+          isValid,
+          touched,
+          values,
+        }) => (
+          <Form>
+            <Input
+              className="mb-5"
+              error={errors.email}
+              isTouched={touched.email}
+              label="Email Address"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              name="email"
+              type="text"
+              value={values.email}
+            />
 
-          <input
-            className="border-solid border-2 border-black"
-            onBlur={handleBlur}
-            onChange={handleChange}
-            name="password"
-            type="password"
-            value={values.password}
-          />
+            <Input
+              className="mb-6"
+              error={errors.password}
+              isTouched={touched.password}
+              label="Password"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              name="password"
+              type="password"
+              value={values.password}
+            />
 
-          <br />
-
-          <button type="submit" disabled={isSubmitting}>
-            Submit
-          </button>
-        </Form>
-      )}
-    </Formik>
+            <Button
+              appearance="primary"
+              disabled={isSubmitting || !isValid || !dirty}
+              type="submit"
+            >
+              Log In
+            </Button>
+          </Form>
+        )}
+      </Formik>
+    </Panel>
   );
 };
 
