@@ -33,9 +33,9 @@ const Login: NextPage = () => {
     try {
       await setUser(() => postLogin(values));
     } catch (err) {
-      // Create function to handle errors globally (ex show toast messages)
+      // TODO: Create function to handle errors globally (ex show toast messages)
       if (isHttpError(err)) {
-        console.log(err.response.data.status);
+        console.log('err', err.response.data.status);
       }
     }
   };

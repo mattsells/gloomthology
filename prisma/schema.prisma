@@ -15,7 +15,37 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email             String  @unique @db.VarChar(255)
+  email             String             @unique @db.VarChar(255)
   encryptedPassword String
-  name              String? @unique @db.VarChar(255)
+  name              String?            @unique @db.VarChar(255)
+  campaigns         UsersOnCampaigns[]
+}
+
+model Campaign {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name  String
+  users UsersOnCampaigns[]
+}
+
+model UsersOnCampaigns {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaignId Int
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+
+  role Role @default(USER)
+
+  @@id([campaignId, userId])
+}
+
+enum Role {
+  USER
+  ADMIN
+  OWNER
 }
