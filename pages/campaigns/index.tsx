@@ -3,21 +3,10 @@ import { withIronSessionSsr } from 'iron-session/next';
 import type { NextPage } from 'next';
 
 import db from '@/db';
-import { sessionOptions } from '@/lib/session/config';
+import { authenticated } from '@/lib/session/pages';
 
-// TODO: MAke reusable util for this
-export const getServerSideProps = withIronSessionSsr(async ({ req }) => {
+export const getServerSideProps = authenticated(async ({ req }) => {
   const { user } = req.session;
-
-  // Need to check if user is logged in
-  if (!user) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: '/login',
-      },
-    };
-  }
 
   const userCampaigns = await db.usersOnCampaigns.findMany({
     where: {
@@ -38,7 +27,7 @@ export const getServerSideProps = withIronSessionSsr(async ({ req }) => {
       user: req.session.user,
     },
   };
-}, sessionOptions);
+});
 
 type Props = {
   campaigns: Campaign[];
