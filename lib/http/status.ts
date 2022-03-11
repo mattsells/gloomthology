@@ -4,6 +4,7 @@ enum HttpStatus {
   NoContent = 204,
   Unauthorized = 401,
   Conflict = 409,
+  ServerError = 500,
 }
 
 export default HttpStatus;

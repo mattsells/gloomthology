@@ -35,7 +35,7 @@ const styles = {
         'bg-indigo-700': isPrimary,
         'hover:bg-indigo-800': isPrimary && !isDisabled,
       }),
-      opacity({ 'opacity-80': isDisabled })
+      opacity({ 'opacity-60': isDisabled })
     );
   },
 };

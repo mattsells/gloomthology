@@ -30,7 +30,7 @@ export default function Navbar() {
               {isLoggedIn && (
                 <>
                   <li className="px-3">
-                    <Link href={Routes.Campaigns}>
+                    <Link href="/campaigns">
                       <a className="flex items-center h-14 text-slate-50 text-lg">
                         Campaigns
                       </a>

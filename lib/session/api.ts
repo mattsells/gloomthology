@@ -5,7 +5,7 @@ import controller from '@/lib/http/controller';
 
 import { sessionOptions } from './config';
 
-export async function authenticated(actions: Actions) {
+export function authenticated(actions: Actions) {
   // TODO: Check for user and if not present return error
   const handler = controller(actions);
 

@@ -6,6 +6,7 @@ import {
   classnames,
   maxWidth,
   padding,
+  width,
 } from 'tailwindcss-classnames';
 
 type Size = 'medium';
@@ -24,7 +25,8 @@ const styles = {
       maxWidth({ 'max-w-2xl': size === 'medium' }),
       borderRadius('rounded-lg'),
       backgroundColor('bg-zinc-800'),
-      padding('p-8')
+      padding('p-8'),
+      width('w-full')
     ),
 };
 
