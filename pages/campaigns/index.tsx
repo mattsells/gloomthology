@@ -13,7 +13,6 @@ import db from '@/db';
 import http, { Routes } from '@/lib/http';
 import { sessionOptions } from '@/lib/session/config';
 import CampaignSchema from '@/schemas/campaign';
-import { serialize } from '@/utils/model';
 
 // TODO: MAke reusable util for this
 export const getServerSideProps = withIronSessionSsr(async ({ req }) => {
