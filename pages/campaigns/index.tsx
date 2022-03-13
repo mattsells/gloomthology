@@ -5,6 +5,7 @@ import type { NextPage } from 'next';
 import { useState } from 'react';
 
 import Button from '@/components/Button';
+import CampaignTile from '@/components/CampaignTile';
 import EmptyState from '@/components/EmptyState';
 import Input from '@/components/Input';
 import Modal from '@/components/Modal';
@@ -59,7 +60,7 @@ const initialValues = {
 
 type FormState = typeof initialValues;
 
-const Campaigns: NextPage<Props> = ({ campaigns }) => {
+const CampaignsIndex: NextPage<Props> = ({ campaigns }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   const handleSubmit = async (campaign: FormState) => {
@@ -74,13 +75,21 @@ const Campaigns: NextPage<Props> = ({ campaigns }) => {
 
   return (
     <div>
-      <Button appearance="primary" onClick={() => setIsVisible(true)}>
-        Create Campaign
-      </Button>
+      <div className="mb-6">
+        <Button appearance="primary" onClick={() => setIsVisible(true)}>
+          Create Campaign
+        </Button>
+      </div>
 
       {!campaigns.length && <EmptyState text="You don't have any campaigns" />}
 
-      <pre>{JSON.stringify(campaigns, null, 2)}</pre>
+      {!!campaigns.length && (
+        <div className="grid gap-4 grid-cols-1">
+          {campaigns.map((campaign) => (
+            <CampaignTile campaign={campaign} key={campaign.id} />
+          ))}
+        </div>
+      )}
 
       {isVisible && (
         <Modal onDismiss={() => setIsVisible(false)}>
@@ -138,4 +147,4 @@ const Campaigns: NextPage<Props> = ({ campaigns }) => {
   );
 };
 
-export default Campaigns;
+export default CampaignsIndex;

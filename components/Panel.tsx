@@ -9,7 +9,7 @@ import {
   width,
 } from 'tailwindcss-classnames';
 
-type Size = 'medium';
+type Size = 'medium' | 'full';
 
 type Props = {
   className?: string;
