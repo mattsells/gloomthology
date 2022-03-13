@@ -6,7 +6,6 @@ import { error, success } from '@/lib/http/response';
 import HttpStatus from '@/lib/http/status';
 import { authenticated } from '@/lib/session/api';
 import CampaignSchema from '@/schemas/campaign';
-import { serialize } from '@/utils/model';
 
 async function post(req: NextApiRequest, res: NextApiResponse) {
   try {

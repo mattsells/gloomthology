@@ -1,5 +1,3 @@
-import { serialize } from '@/utils/model';
-
 enum ResponseStatus {
   Error = 'error',
   Fail = 'fail',
@@ -31,15 +29,14 @@ export function error(message: string): ErrorResponse {
 export function failure<T = any>(data: T): FailResponse {
   return {
     status: ResponseStatus.Fail,
-    data: serialize(data),
+    data,
   };
 }
 
 export function success<T = any>(data: T): SuccessResponse {
-  console.log('SERIALIZE!');
   return {
     status: ResponseStatus.Success,
-    data: serialize(data),
+    data,
   };
 }
 

@@ -44,7 +44,7 @@ export const getServerSideProps = withIronSessionSsr(async ({ req }) => {
 
   return {
     props: {
-      campaigns: serialize(campaigns),
+      campaigns,
       user: req.session.user,
     },
   };
