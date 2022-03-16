@@ -30,6 +30,6 @@ const styles = {
     ),
 };
 
-export default function Panel({ className, size = 'medium', ...rest }: Props) {
+export default function Panel({ className, size = 'full', ...rest }: Props) {
   return <div className={styles.root(className, size)} {...rest} />;
 }

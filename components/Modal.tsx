@@ -15,7 +15,7 @@ export default function Modal({ children, onDismiss }: Props): ReactElement {
     <Portal>
       <div className="fixed inset-0 bg-black/50">
         <div className="flex justify-center items-center py-16 h-full">
-          <Panel>
+          <Panel size="medium">
             <div className="flex justify-end">
               <Button onClick={onDismiss} />
             </div>

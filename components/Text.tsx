@@ -2,11 +2,17 @@ import { ReactElement, createElement } from 'react';
 import classnames, { fontSize, textColor } from 'tailwindcss-classnames';
 
 const styles = {
+  body: (className: any) =>
+    classnames(fontSize('text-xl'), textColor('text-zinc-200'), className),
+
+  subheader: (className: any) =>
+    classnames(fontSize('text-2xl'), textColor('text-zinc-400'), className),
+
   header: (className: any) =>
-    classnames(className, fontSize('text-3xl'), textColor('text-indigo-500')),
+    classnames(fontSize('text-3xl'), textColor('text-indigo-500'), className),
 };
 
-type Appearance = 'header';
+type Appearance = 'header' | 'body' | 'subheader';
 type As = 'h1' | 'h2' | 'span';
 
 type Props = React.HTMLProps<HTMLSpanElement> & {

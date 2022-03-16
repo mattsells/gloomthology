@@ -13,9 +13,22 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
 
     await CampaignSchema.validate(data);
 
+    const location = await db.location.findFirst({
+      where: {
+        tag: 'gl-home',
+      },
+    });
+
+    if (!location) {
+      return res
+        .status(HttpStatus.ServerError)
+        .json(error('Unable to create campaign'));
+    }
+
     const campaign = await db.campaign.create({
       data: {
         ...data,
+        locationId: location.id,
         users: {
           create: [
             {

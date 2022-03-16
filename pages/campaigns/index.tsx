@@ -74,7 +74,7 @@ const CampaignsIndex: NextPage<Props> = ({ campaigns }) => {
   };
 
   return (
-    <div>
+    <>
       <div className="mb-6">
         <Button appearance="primary" onClick={() => setIsVisible(true)}>
           Create Campaign
@@ -143,7 +143,7 @@ const CampaignsIndex: NextPage<Props> = ({ campaigns }) => {
           </Formik>
         </Modal>
       )}
-    </div>
+    </>
   );
 };
 

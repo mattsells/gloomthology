@@ -1,9 +1,12 @@
-import { Campaign } from '@prisma/client';
 import { withIronSessionSsr } from 'iron-session/next';
 import { NextPage } from 'next/types';
 
+import Button from '@/components/Button';
+import Panel from '@/components/Panel';
+import Text from '@/components/Text';
 import db from '@/db';
 import { sessionOptions } from '@/lib/session/config';
+import { CampaignWithRelations } from '@/types/campaign';
 
 export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
   const { user } = req.session;
@@ -23,12 +26,17 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
     where: {
       id: Number(id),
     },
+    include: {
+      location: true,
+    },
   });
 
   // TODO: Make sure you can view the campaign
 
   if (!campaign) {
-    // TODO: redirect to 404
+    return {
+      notFound: true,
+    };
   }
 
   return {
@@ -40,11 +48,65 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
 }, sessionOptions);
 
 type Props = {
-  campaign: Campaign;
+  campaign: CampaignWithRelations;
 };
 
 const CampaignShow: NextPage<Props> = ({ campaign }) => {
-  return <div>Ths is the campaign view {JSON.stringify(campaign)}</div>;
+  return (
+    <>
+      <Text as="h1" appearance="header" className="mb-4">
+        {campaign.name}
+      </Text>
+
+      <div className="grid gap-4 grid-cols-5">
+        <div className="col-span-3">
+          <Panel>
+            <Text as="h2" appearance="subheader" className="mb-4">
+              Current Status
+            </Text>
+
+            <table className="w-full">
+              <tbody>
+                <tr>
+                  <td className="p-3">
+                    <Text appearance="body">Current Location:</Text>
+                  </td>
+                  <td className="p-3">
+                    <Text appearance="body">{campaign.location.name}</Text>
+                  </td>
+                  <td className="p-3 text-right">
+                    <Button className="w-full">Travel</Button>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="p-3">
+                    <Text appearance="body">Event Status:</Text>
+                  </td>
+                  <td className="p-3">
+                    <Text appearance="body" className="text-rose-500">
+                      Incomplete
+                    </Text>
+                  </td>
+                  <td className="p-3 text-right">
+                    <Button className="w-full">Begin City Event</Button>
+                  </td>
+                  {/* TODO: Add row for scenario status */}
+                </tr>
+              </tbody>
+            </table>
+          </Panel>
+        </div>
+
+        <div className="col-span-2">
+          <Panel>
+            <Text as="h2" appearance="subheader" className="mb-4">
+              Activity
+            </Text>
+          </Panel>
+        </div>
+      </div>
+    </>
+  );
 };
 
 export default CampaignShow;

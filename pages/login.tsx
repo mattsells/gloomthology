@@ -41,7 +41,7 @@ const Login: NextPage = () => {
   };
 
   return (
-    <Panel className="mx-auto">
+    <Panel className="mx-auto" size="medium">
       <Text as="h1" appearance="header" className="mb-4">
         Log In
       </Text>
