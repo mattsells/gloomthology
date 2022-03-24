@@ -1,7 +1,10 @@
 import { withIronSessionSsr } from 'iron-session/next';
 import { NextPage } from 'next/types';
+import { useState } from 'react';
 
 import Button from '@/components/Button';
+import EventActions from '@/components/EventActions';
+import Modal from '@/components/Modal';
 import Panel from '@/components/Panel';
 import Text from '@/components/Text';
 import db from '@/db';
@@ -52,6 +55,8 @@ type Props = {
 };
 
 const CampaignShow: NextPage<Props> = ({ campaign }) => {
+  const [isEventModalVisible, setIsEventModalVisible] = useState(false);
+
   return (
     <>
       <Text as="h1" appearance="header" className="mb-4">
@@ -78,20 +83,11 @@ const CampaignShow: NextPage<Props> = ({ campaign }) => {
                     <Button className="w-full">Travel</Button>
                   </td>
                 </tr>
-                <tr>
-                  <td className="p-3">
-                    <Text appearance="body">Event Status:</Text>
-                  </td>
-                  <td className="p-3">
-                    <Text appearance="body" className="text-rose-500">
-                      Incomplete
-                    </Text>
-                  </td>
-                  <td className="p-3 text-right">
-                    <Button className="w-full">Begin City Event</Button>
-                  </td>
-                  {/* TODO: Add row for scenario status */}
-                </tr>
+
+                <EventActions
+                  campaign={campaign}
+                  onClickStart={() => setIsEventModalVisible(true)}
+                />
               </tbody>
             </table>
           </Panel>
@@ -105,6 +101,8 @@ const CampaignShow: NextPage<Props> = ({ campaign }) => {
           </Panel>
         </div>
       </div>
+
+      {isEventModalVisible && <Modal>Hello</Modal>}
     </>
   );
 };

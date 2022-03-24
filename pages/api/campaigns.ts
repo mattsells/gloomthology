@@ -6,6 +6,7 @@ import { error, success } from '@/lib/http/response';
 import HttpStatus from '@/lib/http/status';
 import { authenticated } from '@/lib/session/api';
 import CampaignSchema from '@/schemas/campaign';
+import { Locations } from '@/types/location';
 
 async function post(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -15,7 +16,7 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
 
     const location = await db.location.findFirst({
       where: {
-        tag: 'gl-home',
+        tag: Locations.Home,
       },
     });
 

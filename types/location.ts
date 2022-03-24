@@ -9,4 +9,9 @@ const locationCreateArgs = Prisma.validator<Prisma.LocationArgs>()({
 
 type LocationCreateArgs = Prisma.CampaignGetPayload<typeof locationCreateArgs>;
 
+enum Locations {
+  Home = 'gl-home',
+}
+
 export type { Location, LocationCreateArgs };
+export { Locations };
