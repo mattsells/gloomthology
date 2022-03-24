@@ -13,7 +13,7 @@ const styles = {
 };
 
 type Appearance = 'header' | 'body' | 'subheader';
-type As = 'h1' | 'h2' | 'span';
+type As = 'h1' | 'h2' | 'span' | 'label';
 
 type Props = React.HTMLProps<HTMLSpanElement> & {
   appearance?: Appearance;

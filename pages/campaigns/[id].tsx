@@ -7,9 +7,13 @@ import EventActions from '@/components/EventActions';
 import Modal from '@/components/Modal';
 import Panel from '@/components/Panel';
 import Text from '@/components/Text';
+import Textbox from '@/components/Textbox';
+import VStack from '@/components/VStack';
 import db from '@/db';
 import { sessionOptions } from '@/lib/session/config';
 import { CampaignWithRelations } from '@/types/campaign';
+import { Locations } from '@/types/location';
+import { titleize } from '@/utils/string';
 
 export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
   const { user } = req.session;
@@ -31,14 +35,25 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
     },
     include: {
       location: true,
+      users: true,
     },
   });
-
-  // TODO: Make sure you can view the campaign
 
   if (!campaign) {
     return {
       notFound: true,
+    };
+  }
+
+  const campaignUser = campaign.users.find(
+    (campaignUser) => campaignUser.userId === user.id
+  );
+
+  if (!campaignUser) {
+    return {
+      props: {
+        campaign: null,
+      },
     };
   }
 
@@ -56,6 +71,22 @@ type Props = {
 
 const CampaignShow: NextPage<Props> = ({ campaign }) => {
   const [isEventModalVisible, setIsEventModalVisible] = useState(false);
+
+  // TODO: Make component for this
+  if (!campaign) {
+    return (
+      <Text as="h1" appearance="header" className="mb-4">
+        You can&pos;t view with campaign
+      </Text>
+    );
+  }
+
+  // TODO: Make util for this
+  const eventType = campaign.location.tag === Locations.Home ? 'city' : 'road';
+  const labelText =
+    eventType === 'city'
+      ? 'While in Gloomhaven...'
+      : `On the road to ${campaign.location.name}`;
 
   return (
     <>
@@ -102,7 +133,34 @@ const CampaignShow: NextPage<Props> = ({ campaign }) => {
         </div>
       </div>
 
-      {isEventModalVisible && <Modal>Hello</Modal>}
+      {isEventModalVisible && (
+        <Modal onDismiss={() => setIsEventModalVisible(false)}>
+          <Text as="h1" appearance="header" className="mb-4">
+            {titleize(eventType)} Event
+          </Text>
+
+          <Modal.Body>
+            <VStack>
+              <Text as="label" appearance="subheader" className="mb-2">
+                {labelText}
+              </Text>
+
+              <Textbox></Textbox>
+            </VStack>
+          </Modal.Body>
+
+          <Modal.Footer>
+            <Button
+              appearance="primary"
+              // disabled={isSubmitting || !isValid || !dirty}
+              // onClick={submitForm}
+              type="submit"
+            >
+              Complete Event
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
     </>
   );
 };
