@@ -29,7 +29,7 @@ export default function EventActions({
 }: Props): ReactElement<Props> {
   const type: Type = campaign.location.tag === Locations.Home ? 'city' : 'road';
   const status = campaign[`${type}EventStatus`];
-  const isComplete = status === EventStatus.COMPLETE;
+  const isComplete = status === EventStatus.Complete;
 
   return (
     <tr>

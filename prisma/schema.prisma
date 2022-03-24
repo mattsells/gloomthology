@@ -28,10 +28,11 @@ model Campaign {
 
   name            String
   users           UsersOnCampaigns[]
-  cityEventStatus EventStatus        @default(INCOMPLETE)
-  roadEventStatus EventStatus        @default(INCOMPLETE)
+  cityEventStatus EventStatus        @default(Incomplete)
+  roadEventStatus EventStatus        @default(Incomplete)
   location        Location           @relation(fields: [locationId], references: [id])
   locationId      Int
+  Activity        Activity[]
 }
 
 model UsersOnCampaigns {
@@ -43,7 +44,7 @@ model UsersOnCampaigns {
   user       User     @relation(fields: [userId], references: [id])
   userId     Int
 
-  role Role @default(USER)
+  role Role @default(Member)
 
   @@id([campaignId, userId])
 }
@@ -55,19 +56,36 @@ model Location {
 
   name     String
   tag      String
-  Campaign Campaign[]
+  campaign Campaign[]
 
   @@unique([tag])
   @@index([tag])
 }
 
+model Activity {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaignId Int
+
+  data Json
+  type ActivityType
+}
+
 enum Role {
-  USER
-  ADMIN
-  OWNER
+  Member
+  Admin
+  Owner
 }
 
 enum EventStatus {
-  COMPLETE
-  INCOMPLETE
+  Complete
+  Incomplete
+}
+
+enum ActivityType {
+  CampaignCreated
+  EventCompleted
 }

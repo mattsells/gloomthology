@@ -20,6 +20,8 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
       },
     });
 
+    console.log('LOCATION IS', location);
+
     if (!location) {
       return res
         .status(HttpStatus.ServerError)
@@ -34,12 +36,14 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
           create: [
             {
               userId: req.session.user!.id,
-              role: Role.OWNER,
+              role: Role.Owner,
             },
           ],
         },
       },
     });
+
+    console.log('whatever');
 
     if (!campaign) {
       return res

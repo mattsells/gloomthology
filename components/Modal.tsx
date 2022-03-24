@@ -55,7 +55,7 @@ type FooterProps = {
 };
 
 function Footer(props: FooterProps): ReactElement {
-  return <div {...props} />;
+  return <div className="py-4" {...props} />;
 }
 
 Modal.Body = Body;

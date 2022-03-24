@@ -1,3 +1,5 @@
+import { ActivityType, EventStatus } from '@prisma/client';
+import { Formik } from 'formik';
 import { withIronSessionSsr } from 'iron-session/next';
 import { NextPage } from 'next/types';
 import { useState } from 'react';
@@ -69,6 +71,9 @@ type Props = {
   campaign: CampaignWithRelations;
 };
 
+const eventFormState = { eventText: '' };
+type EventFormState = typeof eventFormState;
+
 const CampaignShow: NextPage<Props> = ({ campaign }) => {
   const [isEventModalVisible, setIsEventModalVisible] = useState(false);
 
@@ -87,6 +92,23 @@ const CampaignShow: NextPage<Props> = ({ campaign }) => {
     eventType === 'city'
       ? 'While in Gloomhaven...'
       : `On the road to ${campaign.location.name}`;
+
+  const handleSubmitForm = (values: EventFormState) => {
+    const data = {
+      campaign: {
+        [`${eventType}EventStatus`]: EventStatus.Complete,
+      },
+      activity: {
+        type: ActivityType.EventCompleted,
+        data: {
+          text: values.eventText,
+          locationId: campaign.location.id,
+        },
+      },
+    };
+
+    console.log('data', data);
+  };
 
   return (
     <>
@@ -134,32 +156,61 @@ const CampaignShow: NextPage<Props> = ({ campaign }) => {
       </div>
 
       {isEventModalVisible && (
-        <Modal onDismiss={() => setIsEventModalVisible(false)}>
-          <Text as="h1" appearance="header" className="mb-4">
-            {titleize(eventType)} Event
-          </Text>
-
-          <Modal.Body>
-            <VStack>
-              <Text as="label" appearance="subheader" className="mb-2">
-                {labelText}
+        <Formik initialValues={eventFormState} onSubmit={handleSubmitForm}>
+          {({
+            dirty,
+            errors,
+            handleBlur,
+            handleChange,
+            isSubmitting,
+            isValid,
+            submitForm,
+            values,
+          }) => (
+            <Modal onDismiss={() => setIsEventModalVisible(false)}>
+              <Text as="h1" appearance="header" className="mb-4">
+                {titleize(eventType)} Event
               </Text>
 
-              <Textbox></Textbox>
-            </VStack>
-          </Modal.Body>
+              <Modal.Body>
+                <VStack>
+                  <Text as="label" appearance="subheader" className="mb-2">
+                    {labelText}
+                  </Text>
 
-          <Modal.Footer>
-            <Button
-              appearance="primary"
-              // disabled={isSubmitting || !isValid || !dirty}
-              // onClick={submitForm}
-              type="submit"
-            >
-              Complete Event
-            </Button>
-          </Modal.Footer>
-        </Modal>
+                  <Textbox
+                    error={errors.eventText}
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    name="eventText"
+                    rows={6}
+                    value={values.eventText}
+                  ></Textbox>
+                </VStack>
+              </Modal.Body>
+
+              <Modal.Footer>
+                <Button
+                  appearance="secondary"
+                  onClick={() => setIsEventModalVisible(false)}
+                  type="button"
+                >
+                  Cancel
+                </Button>
+
+                <Button
+                  appearance="primary"
+                  className="ml-4"
+                  disabled={isSubmitting || !isValid || !dirty}
+                  onClick={submitForm}
+                  type="submit"
+                >
+                  Complete Event
+                </Button>
+              </Modal.Footer>
+            </Modal>
+          )}
+        </Formik>
       )}
     </>
   );
