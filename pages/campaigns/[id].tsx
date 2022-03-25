@@ -40,6 +40,7 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
       id: Number(id),
     },
     include: {
+      activities: true,
       location: true,
       users: true,
     },
@@ -89,6 +90,8 @@ const CampaignShow: NextPage<Props> = () => {
 
   const [isEventModalVisible, setIsEventModalVisible] = useState(false);
   const { campaign, setCampaign } = useCampaign(id as string);
+
+  console.log(campaign);
 
   // TODO: Make component for this
   if (!campaign) {

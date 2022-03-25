@@ -22,6 +22,7 @@ async function get(req: NextApiRequest, res: NextApiResponse) {
       id: Number(id),
     },
     include: {
+      activities: true,
       location: true,
       users: true,
     },
@@ -53,6 +54,15 @@ async function patch(req: NextApiRequest, res: NextApiResponse) {
 
     await CampaignSchema.validate(campaign);
 
+    if (activity) {
+      await db.activity.create({
+        data: {
+          campaignId: Number(id),
+          ...activity,
+        },
+      });
+    }
+
     // TODO: Validate
 
     const updatedCampaign = await db.campaign.update({
@@ -61,12 +71,11 @@ async function patch(req: NextApiRequest, res: NextApiResponse) {
       },
       data: campaign,
       include: {
+        activities: true,
         location: true,
         users: true,
       },
     });
-
-    console.log('updatedCampaign', updatedCampaign);
 
     return res
       .status(HttpStatus.Success)

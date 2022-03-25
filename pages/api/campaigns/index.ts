@@ -39,6 +39,11 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
           ],
         },
       },
+      include: {
+        activities: true,
+        location: true,
+        users: true,
+      },
     });
 
     if (!campaign) {
