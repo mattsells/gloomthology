@@ -27,12 +27,12 @@ model Campaign {
   updatedAt DateTime @updatedAt
 
   name            String
+  activities      Activity[]
   users           UsersOnCampaigns[]
   cityEventStatus EventStatus        @default(Incomplete)
   roadEventStatus EventStatus        @default(Incomplete)
   location        Location           @relation(fields: [locationId], references: [id])
   locationId      Int
-  Activity        Activity[]
 }
 
 model UsersOnCampaigns {

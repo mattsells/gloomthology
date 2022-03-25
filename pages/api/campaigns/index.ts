@@ -20,8 +20,6 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
       },
     });
 
-    console.log('LOCATION IS', location);
-
     if (!location) {
       return res
         .status(HttpStatus.ServerError)
@@ -42,8 +40,6 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
         },
       },
     });
-
-    console.log('whatever');
 
     if (!campaign) {
       return res

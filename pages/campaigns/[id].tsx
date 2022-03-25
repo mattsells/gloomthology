@@ -1,8 +1,10 @@
 import { ActivityType, EventStatus } from '@prisma/client';
 import { Formik } from 'formik';
 import { withIronSessionSsr } from 'iron-session/next';
+import { useRouter } from 'next/router';
 import { NextPage } from 'next/types';
 import { useState } from 'react';
+import { SWRConfig } from 'swr';
 
 import Button from '@/components/Button';
 import EventActions from '@/components/EventActions';
@@ -12,6 +14,8 @@ import Text from '@/components/Text';
 import Textbox from '@/components/Textbox';
 import VStack from '@/components/VStack';
 import db from '@/db';
+import useCampaign from '@/hooks/useCampaign';
+import http from '@/lib/http';
 import { sessionOptions } from '@/lib/session/config';
 import { CampaignWithRelations } from '@/types/campaign';
 import { Locations } from '@/types/location';
@@ -63,25 +67,34 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
     props: {
       campaign,
       user: req.session.user,
+      fallback: {
+        [`/campaign/${id}`]: campaign,
+      },
     },
   };
 }, sessionOptions);
 
 type Props = {
-  campaign: CampaignWithRelations;
+  fallback: {
+    string: CampaignWithRelations;
+  };
 };
 
 const eventFormState = { eventText: '' };
 type EventFormState = typeof eventFormState;
 
-const CampaignShow: NextPage<Props> = ({ campaign }) => {
+const CampaignShow: NextPage<Props> = () => {
+  const router = useRouter();
+  const { id } = router.query;
+
   const [isEventModalVisible, setIsEventModalVisible] = useState(false);
+  const { campaign, setCampaign } = useCampaign(id as string);
 
   // TODO: Make component for this
   if (!campaign) {
     return (
       <Text as="h1" appearance="header" className="mb-4">
-        You can&pos;t view with campaign
+        You can't view with campaign
       </Text>
     );
   }
@@ -93,7 +106,7 @@ const CampaignShow: NextPage<Props> = ({ campaign }) => {
       ? 'While in Gloomhaven...'
       : `On the road to ${campaign.location.name}`;
 
-  const handleSubmitForm = (values: EventFormState) => {
+  const handleSubmitForm = async (values: EventFormState) => {
     const data = {
       campaign: {
         [`${eventType}EventStatus`]: EventStatus.Complete,
@@ -107,7 +120,11 @@ const CampaignShow: NextPage<Props> = ({ campaign }) => {
       },
     };
 
-    console.log('data', data);
+    await setCampaign(
+      http.patch(`/campaigns/${id}`, data).then((res) => res.data.campaign)
+    );
+
+    setIsEventModalVisible(false);
   };
 
   return (
@@ -216,4 +233,12 @@ const CampaignShow: NextPage<Props> = ({ campaign }) => {
   );
 };
 
-export default CampaignShow;
+const Wrapper: NextPage<Props> = (props) => {
+  return (
+    <SWRConfig value={{ fallback: props.fallback }}>
+      <CampaignShow {...props} />
+    </SWRConfig>
+  );
+};
+
+export default Wrapper;
