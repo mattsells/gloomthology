@@ -13,8 +13,8 @@ async function get(req: NextApiRequest, res: NextApiResponse) {
   // Need to check if user is logged in
   if (!user) {
     return res
-      .status(HttpStatus.ServerError)
-      .json(error('Unable to get campaign'));
+      .status(HttpStatus.Unauthorized)
+      .json(failure('You are not logged in'));
   }
 
   const campaign = await db.campaign.findUnique({
@@ -80,29 +80,10 @@ async function patch(req: NextApiRequest, res: NextApiResponse) {
     return res
       .status(HttpStatus.Success)
       .json(success({ campaign: updatedCampaign }));
-
-    // if (!location) {
-    //   return res
-    //     .status(HttpStatus.ServerError)
-    //     .json(error('Unable to create campaign'));
-    // }
-
-    // const campaign = await db.campaign.update({
-    //   where: {
-    //     id:
-    //   }
-    //   data,
-    // });
-
-    // if (!campaign) {
-    //   return res
-    //     .status(HttpStatus.ServerError)
-    //     .json(error('Unable to create campaign'));
-    // }
-
-    // res.status(HttpStatus.Created).json(success({ campaign }));
   } catch (err) {
-    console.log('error', err);
+    res
+      .status(HttpStatus.ServerError)
+      .json(error('An unexpected error has occurred'));
   }
 }
 

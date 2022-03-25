@@ -6,6 +6,7 @@ import { NextPage } from 'next/types';
 import { useState } from 'react';
 import { SWRConfig } from 'swr';
 
+import ActivityTile from '@/components/ActivityTile';
 import Button from '@/components/Button';
 import EventActions from '@/components/EventActions';
 import Modal from '@/components/Modal';
@@ -69,7 +70,7 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
       campaign,
       user: req.session.user,
       fallback: {
-        [`/campaign/${id}`]: campaign,
+        [`/campaigns/${id}`]: campaign,
       },
     },
   };
@@ -77,7 +78,7 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
 
 type Props = {
   fallback: {
-    string: CampaignWithRelations;
+    [k: string]: CampaignWithRelations;
   };
 };
 
@@ -90,8 +91,6 @@ const CampaignShow: NextPage<Props> = () => {
 
   const [isEventModalVisible, setIsEventModalVisible] = useState(false);
   const { campaign, setCampaign } = useCampaign(id as string);
-
-  console.log(campaign);
 
   // TODO: Make component for this
   if (!campaign) {
@@ -107,7 +106,7 @@ const CampaignShow: NextPage<Props> = () => {
   const labelText =
     eventType === 'city'
       ? 'While in Gloomhaven...'
-      : `On the road to ${campaign.location.name}`;
+      : `On the road to ${campaign.location.name}...`;
 
   const handleSubmitForm = async (values: EventFormState) => {
     const data = {
@@ -118,7 +117,7 @@ const CampaignShow: NextPage<Props> = () => {
         type: ActivityType.EventCompleted,
         data: {
           text: values.eventText,
-          locationId: campaign.location.id,
+          locationTag: campaign.location.tag,
         },
       },
     };
@@ -171,6 +170,16 @@ const CampaignShow: NextPage<Props> = () => {
             <Text as="h2" appearance="subheader" className="mb-4">
               Activity
             </Text>
+
+            <div className="grid gap-4 grid-cols-1">
+              {campaign.activities.map((activity) => (
+                <ActivityTile
+                  activity={activity}
+                  campaign={campaign}
+                  key={activity.id}
+                />
+              ))}
+            </div>
           </Panel>
         </div>
       </div>

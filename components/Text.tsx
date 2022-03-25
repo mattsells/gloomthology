@@ -5,6 +5,9 @@ const styles = {
   body: (className: any) =>
     classnames(fontSize('text-xl'), textColor('text-zinc-200'), className),
 
+  label: (className: any) =>
+    classnames(fontSize('text-sm'), textColor('text-zinc-400'), className),
+
   subheader: (className: any) =>
     classnames(fontSize('text-2xl'), textColor('text-zinc-400'), className),
 
@@ -12,8 +15,8 @@ const styles = {
     classnames(fontSize('text-3xl'), textColor('text-indigo-500'), className),
 };
 
-type Appearance = 'header' | 'body' | 'subheader';
-type As = 'h1' | 'h2' | 'span' | 'label';
+type Appearance = 'header' | 'body' | 'subheader' | 'label';
+type As = 'h1' | 'h2' | 'span' | 'label' | 'p';
 
 type Props = React.HTMLProps<HTMLSpanElement> & {
   appearance?: Appearance;

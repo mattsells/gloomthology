@@ -20,13 +20,13 @@ type Props = {
 const styles = {
   root: (className: any, size: Size) =>
     classnames(
-      className,
       boxShadow('shadow'),
       maxWidth({ 'max-w-2xl': size === 'medium' }),
       borderRadius('rounded-lg'),
       backgroundColor('bg-zinc-800'),
       padding('p-8'),
-      width('w-full')
+      width('w-full'),
+      className
     ),
 };
 
