@@ -8,10 +8,8 @@ export default function CampaignCreated({
   campaign,
 }: Props): ReactElement<Props> {
   return (
-    <>
-      <Text as="p" appearance="body">
-        The {campaign.name} has been founded!
-      </Text>
-    </>
+    <Text as="p" appearance="body">
+      {campaign.name} is founded!
+    </Text>
   );
 }
