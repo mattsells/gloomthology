@@ -7,6 +7,7 @@ export type ActivityWithData<T = ActivityData> = Omit<Activity, 'data'> & {
 export type ActivityData = EventCompletedActivityData;
 
 export type EventCompletedActivityData = {
+  locationName: string;
   locationTag: string;
   text: string;
 };

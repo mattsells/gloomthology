@@ -14,7 +14,7 @@ export default function CampaignCreated({
   const label =
     activity.data?.locationTag === Locations.Home
       ? 'While in Gloomhaven...'
-      : 'On the road...';
+      : `On the road to ${activity.data.locationName}`;
 
   return (
     <>

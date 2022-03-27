@@ -1,15 +1,14 @@
-import { Campaign, Prisma } from '@prisma/client';
+import { Campaign, EventStatus, UsersOnCampaigns } from '@prisma/client';
 
-const campaignWithRelations = Prisma.validator<Prisma.CampaignArgs>()({
-  include: {
-    activities: true,
-    location: true,
-    users: true,
-  },
-});
+import { Location } from './location';
 
-type CampaignWithRelations = Prisma.CampaignGetPayload<
-  typeof campaignWithRelations
->;
+type CampaignWithRelations = {
+  name: string;
+  users: UsersOnCampaigns[];
+  cityEventStatus: EventStatus;
+  roadEventStatus: EventStatus;
+  location: Location;
+  locationId: number;
+};
 
 export type { Campaign, CampaignWithRelations };

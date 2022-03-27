@@ -15,6 +15,7 @@ import Text from '@/components/Text';
 import Textbox from '@/components/Textbox';
 import VStack from '@/components/VStack';
 import db from '@/db';
+import useActivities from '@/hooks/useActivities';
 import useCampaign from '@/hooks/useCampaign';
 import http from '@/lib/http';
 import { sessionOptions } from '@/lib/session/config';
@@ -41,7 +42,6 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
       id: Number(id),
     },
     include: {
-      activities: true,
       location: true,
       users: true,
     },
@@ -65,11 +65,25 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
     };
   }
 
+  const activities = await db.activity.findMany({
+    where: {
+      campaignId: {
+        equals: Number(id),
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    take: 20,
+    skip: 0,
+  });
+
   return {
     props: {
       campaign,
       user: req.session.user,
       fallback: {
+        [`/activities?campaignId=${id}`]: activities,
         [`/campaigns/${id}`]: campaign,
       },
     },
@@ -91,6 +105,7 @@ const CampaignShow: NextPage<Props> = () => {
 
   const [isEventModalVisible, setIsEventModalVisible] = useState(false);
   const { campaign, setCampaign } = useCampaign(id as string);
+  const { activities, setActivities } = useActivities(id as string);
 
   // TODO: Make component for this
   if (!campaign) {
@@ -117,6 +132,7 @@ const CampaignShow: NextPage<Props> = () => {
         type: ActivityType.EventCompleted,
         data: {
           text: values.eventText,
+          locationName: campaign.location.name,
           locationTag: campaign.location.tag,
         },
       },
@@ -172,7 +188,7 @@ const CampaignShow: NextPage<Props> = () => {
             </Text>
 
             <div className="grid gap-4 grid-cols-1">
-              {campaign.activities.map((activity) => (
+              {activities.map((activity) => (
                 <ActivityTile
                   activity={activity}
                   campaign={campaign}
