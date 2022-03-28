@@ -88,4 +88,5 @@ enum EventStatus {
 enum ActivityType {
   CampaignCreated
   EventCompleted
+  Traveled
 }

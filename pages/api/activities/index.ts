@@ -4,11 +4,11 @@ import db from '@/db';
 import { failure, success } from '@/lib/http/response';
 import HttpStatus from '@/lib/http/status';
 import { authenticated } from '@/lib/session/api';
-import { paginate, urlSearchParams } from '@/utils/api';
+import { paginate } from '@/utils/api';
 
 async function get(req: NextApiRequest, res: NextApiResponse) {
   const { user } = req.session;
-  const campaignId = urlSearchParams(req.url).get('campaignId');
+  const { campaignId } = req.query;
 
   if (!user) {
     return res
@@ -22,7 +22,7 @@ async function get(req: NextApiRequest, res: NextApiResponse) {
       .json(failure('No campaign ID provided'));
   }
 
-  const { skip, take } = paginate(req.url);
+  const { skip, take } = paginate(req.query);
 
   const activities = await db.activity.findMany({
     where: {

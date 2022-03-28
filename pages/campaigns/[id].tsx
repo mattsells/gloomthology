@@ -11,6 +11,7 @@ import Button from '@/components/Button';
 import EventActions from '@/components/EventActions';
 import Modal from '@/components/Modal';
 import Panel from '@/components/Panel';
+import Select from '@/components/Select';
 import Text from '@/components/Text';
 import Textbox from '@/components/Textbox';
 import VStack from '@/components/VStack';
@@ -20,6 +21,7 @@ import useCampaign from '@/hooks/useCampaign';
 import http from '@/lib/http';
 import { sessionOptions } from '@/lib/session/config';
 import { CampaignWithRelations } from '@/types/campaign';
+import { Option } from '@/types/form';
 import { Locations } from '@/types/location';
 import { titleize } from '@/utils/string';
 
@@ -78,9 +80,16 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
     skip: 0,
   });
 
+  const locations = await db.location.findMany({});
+  const locationOptions = locations.map((location) => ({
+    label: location.name,
+    value: location.id,
+  }));
+
   return {
     props: {
       campaign,
+      locationOptions,
       user: req.session.user,
       fallback: {
         [`/activities?campaignId=${id}`]: activities,
@@ -91,6 +100,7 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
 }, sessionOptions);
 
 type Props = {
+  locationOptions: Option[];
   fallback: {
     [k: string]: CampaignWithRelations;
   };
@@ -99,13 +109,17 @@ type Props = {
 const eventFormState = { eventText: '' };
 type EventFormState = typeof eventFormState;
 
-const CampaignShow: NextPage<Props> = () => {
+const travelFormState = { tag: { value: '', label: '' } };
+type TravelFormState = { tag: Option };
+
+const CampaignShow: NextPage<Props> = ({ locationOptions }) => {
   const router = useRouter();
   const { id } = router.query;
 
   const [isEventModalVisible, setIsEventModalVisible] = useState(false);
+  const [isTravelModalVisible, setIsTravelModalVisible] = useState(false);
   const { campaign, setCampaign } = useCampaign(id as string);
-  const { activities, setActivities } = useActivities(id as string);
+  const { activities } = useActivities(id as string);
 
   // TODO: Make component for this
   if (!campaign) {
@@ -123,7 +137,7 @@ const CampaignShow: NextPage<Props> = () => {
       ? 'While in Gloomhaven...'
       : `On the road to ${campaign.location.name}...`;
 
-  const handleSubmitForm = async (values: EventFormState) => {
+  const handleSubmitEventForm = async (values: EventFormState) => {
     const data = {
       campaign: {
         [`${eventType}EventStatus`]: EventStatus.Complete,
@@ -143,6 +157,35 @@ const CampaignShow: NextPage<Props> = () => {
     );
 
     setIsEventModalVisible(false);
+  };
+
+  const handleSubmitTravelForm = async (values: TravelFormState) => {
+    const data = {
+      campaign: {
+        locationId: values.tag.value,
+      },
+      activity: {
+        type: ActivityType.Traveled,
+        data: {
+          fromId: campaign.location.id,
+          fromName: campaign.location.name,
+          toId: values.tag.value,
+          toName: values.tag.label,
+        },
+      },
+    };
+
+    // If going to gloomhaven, reset event tags
+    if (values.tag.value === Locations.Home) {
+      campaign.cityEventStatus = EventStatus.Incomplete;
+      campaign.roadEventStatus = EventStatus.Incomplete;
+    }
+
+    await setCampaign(
+      http.patch(`/campaigns/${id}`, data).then((res) => res.data.campaign)
+    );
+
+    setIsTravelModalVisible(false);
   };
 
   return (
@@ -168,7 +211,12 @@ const CampaignShow: NextPage<Props> = () => {
                     <Text appearance="body">{campaign.location.name}</Text>
                   </td>
                   <td className="p-3 text-right">
-                    <Button className="w-full">Travel</Button>
+                    <Button
+                      className="w-full"
+                      onClick={() => setIsTravelModalVisible(true)}
+                    >
+                      Travel
+                    </Button>
                   </td>
                 </tr>
 
@@ -201,7 +249,7 @@ const CampaignShow: NextPage<Props> = () => {
       </div>
 
       {isEventModalVisible && (
-        <Formik initialValues={eventFormState} onSubmit={handleSubmitForm}>
+        <Formik initialValues={eventFormState} onSubmit={handleSubmitEventForm}>
           {({
             dirty,
             errors,
@@ -251,6 +299,64 @@ const CampaignShow: NextPage<Props> = () => {
                   type="submit"
                 >
                   Complete Event
+                </Button>
+              </Modal.Footer>
+            </Modal>
+          )}
+        </Formik>
+      )}
+
+      {isTravelModalVisible && (
+        <Formik
+          initialValues={travelFormState}
+          onSubmit={handleSubmitTravelForm}
+        >
+          {({
+            dirty,
+            errors,
+            handleBlur,
+            handleChange,
+            isSubmitting,
+            isValid,
+            setFieldValue,
+            submitForm,
+            values,
+          }) => (
+            <Modal onDismiss={() => setIsTravelModalVisible(false)}>
+              <Text as="h1" appearance="header" className="mb-4">
+                Travel to...
+              </Text>
+
+              <Modal.Body>
+                <Select
+                  error={errors.tag?.value}
+                  getOptionLabel={(option) => (option as Option).label}
+                  getOptionValue={(option) => (option as Option).value}
+                  onBlur={handleBlur}
+                  onChange={(value) => setFieldValue('tag', value)}
+                  options={locationOptions}
+                  name="tag"
+                  value={values.tag}
+                ></Select>
+              </Modal.Body>
+
+              <Modal.Footer>
+                <Button
+                  appearance="secondary"
+                  onClick={() => setIsTravelModalVisible(false)}
+                  type="button"
+                >
+                  Cancel
+                </Button>
+
+                <Button
+                  appearance="primary"
+                  className="ml-4"
+                  disabled={isSubmitting || !isValid || !dirty}
+                  onClick={submitForm}
+                  type="submit"
+                >
+                  Travel
                 </Button>
               </Modal.Footer>
             </Modal>
