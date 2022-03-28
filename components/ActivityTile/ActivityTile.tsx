@@ -7,11 +7,13 @@ import { formatDate } from '@/utils/date';
 
 import CampaignCreated from './CampaignCreated';
 import EventCompleted from './EventCompleted';
+import Traveled from './Traveled';
 import { Props } from './types';
 
 const ActivtyMap: { [Key in ActivityType]: (props: Props) => ReactElement } = {
   [ActivityType.CampaignCreated]: CampaignCreated,
   [ActivityType.EventCompleted]: EventCompleted,
+  [ActivityType.Traveled]: Traveled,
 };
 
 function ActivityTile(props: Props) {

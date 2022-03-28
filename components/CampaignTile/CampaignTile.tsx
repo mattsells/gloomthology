@@ -1,12 +1,12 @@
-import { Campaign } from '@prisma/client';
 import Link from 'next/link';
 import { ReactElement } from 'react';
 
 import Panel from '@/components/Panel';
 import Text from '@/components/Text';
+import { CampaignWithRelations } from '@/types/campaign';
 
 type Props = {
-  campaign: Campaign;
+  campaign: CampaignWithRelations;
 };
 
 export default function CampaignTile({ campaign }: Props): ReactElement<Props> {

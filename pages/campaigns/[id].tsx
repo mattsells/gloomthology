@@ -18,9 +18,9 @@ import VStack from '@/components/VStack';
 import db from '@/db';
 import useActivities from '@/hooks/useActivities';
 import useCampaign from '@/hooks/useCampaign';
-import http from '@/lib/http';
+import http, { Routes } from '@/lib/http';
 import { sessionOptions } from '@/lib/session/config';
-import { CampaignWithRelations } from '@/types/campaign';
+import { CampaignUpdateData, CampaignWithRelations } from '@/types/campaign';
 import { Option } from '@/types/form';
 import { Locations } from '@/types/location';
 import { titleize } from '@/utils/string';
@@ -84,6 +84,7 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
   const locationOptions = locations.map((location) => ({
     label: location.name,
     value: location.id,
+    tag: location.tag,
   }));
 
   return {
@@ -99,8 +100,12 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
   };
 }, sessionOptions);
 
+type LocationOption = Option & {
+  tag: string;
+};
+
 type Props = {
-  locationOptions: Option[];
+  locationOptions: LocationOption[];
   fallback: {
     [k: string]: CampaignWithRelations;
   };
@@ -109,8 +114,8 @@ type Props = {
 const eventFormState = { eventText: '' };
 type EventFormState = typeof eventFormState;
 
-const travelFormState = { tag: { value: '', label: '' } };
-type TravelFormState = { tag: Option };
+const travelFormState = { tag: { value: 0, label: '', tag: '' } };
+type TravelFormState = { tag: LocationOption };
 
 const CampaignShow: NextPage<Props> = ({ locationOptions }) => {
   const router = useRouter();
@@ -119,7 +124,7 @@ const CampaignShow: NextPage<Props> = ({ locationOptions }) => {
   const [isEventModalVisible, setIsEventModalVisible] = useState(false);
   const [isTravelModalVisible, setIsTravelModalVisible] = useState(false);
   const { campaign, setCampaign } = useCampaign(id as string);
-  const { activities } = useActivities(id as string);
+  const { activities, setActivities } = useActivities(id as string);
 
   // TODO: Make component for this
   if (!campaign) {
@@ -138,52 +143,72 @@ const CampaignShow: NextPage<Props> = ({ locationOptions }) => {
       : `On the road to ${campaign.location.name}...`;
 
   const handleSubmitEventForm = async (values: EventFormState) => {
-    const data = {
-      campaign: {
-        [`${eventType}EventStatus`]: EventStatus.Complete,
-      },
-      activity: {
-        type: ActivityType.EventCompleted,
-        data: {
-          text: values.eventText,
-          locationName: campaign.location.name,
-          locationTag: campaign.location.tag,
-        },
+    const campaignData = {
+      [`${eventType}EventStatus`]: EventStatus.Complete,
+    };
+
+    const activityData = {
+      campaignId: campaign.id,
+      type: ActivityType.EventCompleted,
+      data: {
+        text: values.eventText,
+        locationName: campaign.location.name,
+        locationTag: campaign.location.tag,
       },
     };
 
-    await setCampaign(
-      http.patch(`/campaigns/${id}`, data).then((res) => res.data.campaign)
+    const campaignRequest = setCampaign(
+      http
+        .patch(`/campaigns/${id}`, { campaign: campaignData })
+        .then((res) => res.data.campaign)
     );
+
+    const activitiesRequest = setActivities(
+      http
+        .post(Routes.Activities, { activity: activityData })
+        .then((res) => [res.data.activity, ...activities])
+    );
+
+    await Promise.all([campaignRequest, activitiesRequest]);
 
     setIsEventModalVisible(false);
   };
 
   const handleSubmitTravelForm = async (values: TravelFormState) => {
-    const data = {
-      campaign: {
-        locationId: values.tag.value,
-      },
-      activity: {
-        type: ActivityType.Traveled,
-        data: {
-          fromId: campaign.location.id,
-          fromName: campaign.location.name,
-          toId: values.tag.value,
-          toName: values.tag.label,
-        },
+    const campaignData: CampaignUpdateData = {
+      locationId: values.tag.value,
+    };
+
+    const activityData = {
+      campaignId: campaign.id,
+      type: ActivityType.Traveled,
+      data: {
+        fromId: campaign.location.id,
+        fromName: campaign.location.name,
+        toId: values.tag.value,
+        toName: values.tag.label,
       },
     };
 
     // If going to gloomhaven, reset event tags
-    if (values.tag.value === Locations.Home) {
-      campaign.cityEventStatus = EventStatus.Incomplete;
-      campaign.roadEventStatus = EventStatus.Incomplete;
+    if (values.tag.tag === Locations.Home) {
+      campaignData.cityEventStatus = EventStatus.Incomplete;
+      campaignData.roadEventStatus = EventStatus.Incomplete;
     }
 
-    await setCampaign(
-      http.patch(`/campaigns/${id}`, data).then((res) => res.data.campaign)
+    const campaignRequest = setCampaign(
+      http
+        .patch(`/campaigns/${id}`, { campaign: campaignData })
+        .then((res) => res.data.campaign)
     );
+
+    const activitiesRequest = setActivities(
+      http
+        .post(Routes.Activities, { activity: activityData })
+        .then((res) => [res.data.activity, ...activities])
+    );
+
+    await Promise.all([campaignRequest, activitiesRequest]);
 
     setIsTravelModalVisible(false);
   };
@@ -315,7 +340,6 @@ const CampaignShow: NextPage<Props> = ({ locationOptions }) => {
             dirty,
             errors,
             handleBlur,
-            handleChange,
             isSubmitting,
             isValid,
             setFieldValue,
@@ -331,7 +355,9 @@ const CampaignShow: NextPage<Props> = ({ locationOptions }) => {
                 <Select
                   error={errors.tag?.value}
                   getOptionLabel={(option) => (option as Option).label}
-                  getOptionValue={(option) => (option as Option).value}
+                  getOptionValue={(option) =>
+                    (option as Option).value.toString()
+                  }
                   onBlur={handleBlur}
                   onChange={(value) => setFieldValue('tag', value)}
                   options={locationOptions}

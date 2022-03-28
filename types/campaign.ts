@@ -3,6 +3,7 @@ import { Campaign, EventStatus, UsersOnCampaigns } from '@prisma/client';
 import { Location } from './location';
 
 type CampaignWithRelations = {
+  id: number;
   name: string;
   users: UsersOnCampaigns[];
   cityEventStatus: EventStatus;
@@ -11,4 +12,14 @@ type CampaignWithRelations = {
   locationId: number;
 };
 
-export type { Campaign, CampaignWithRelations };
+type CampaignCreateData = Pick<Campaign, 'name'>;
+type CampaignUpdateData = Partial<
+  Pick<Campaign, 'cityEventStatus' | 'name' | 'roadEventStatus' | 'locationId'>
+>;
+
+export type {
+  Campaign,
+  CampaignWithRelations,
+  CampaignCreateData,
+  CampaignUpdateData,
+};

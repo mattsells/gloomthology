@@ -40,4 +40,20 @@ async function get(req: NextApiRequest, res: NextApiResponse) {
   return res.status(HttpStatus.Success).json(success({ activities }));
 }
 
-export default authenticated({ get });
+async function post(req: NextApiRequest, res: NextApiResponse) {
+  const { user } = req.session;
+
+  if (!user) {
+    return res
+      .status(HttpStatus.Unauthorized)
+      .json(failure('You are not logged in'));
+  }
+
+  const activity = await db.activity.create({
+    data: req.body.activity,
+  });
+
+  return res.status(HttpStatus.Success).json(success({ activity }));
+}
+
+export default authenticated({ get, post });
