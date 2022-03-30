@@ -7,9 +7,11 @@ import HttpStatus from '@/lib/http/status';
 import { unauthenticated } from '@/lib/session/api';
 
 async function post(req: NextApiRequest, res: NextApiResponse) {
+  const { email, password } = req.body.registration;
+
   const existingUser = await db.user.findUnique({
     where: {
-      email: req.body.email,
+      email,
     },
   });
 
@@ -19,14 +21,18 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
       .json(failure({ user: 'A user exists with the provided email' }));
   }
 
-  const encryptedPassword = await bcrypt.hash(req.body.password, 10);
+  const encryptedPassword = await bcrypt.hash(password, 10);
 
   const user = await db.user.create({
     data: {
-      email: req.body.email,
+      email,
       encryptedPassword,
     },
   });
+
+  req.session.user = user;
+
+  await req.session.save();
 
   res.status(HttpStatus.Created).json(success({ user }));
 }

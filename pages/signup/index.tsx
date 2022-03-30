@@ -1,13 +1,15 @@
 import { Form, Formik } from 'formik';
 import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
 
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import Panel from '@/components/Panel';
 import Text from '@/components/Text';
 import useSession from '@/hooks/useSession';
-import http, { Routes } from '@/lib/http';
+import http, { Routes, SuccessResponse } from '@/lib/http';
 import SignupSchema from '@/schemas/signup';
+import { User } from '@/types/user';
 
 const initialValues = {
   email: '',
@@ -15,16 +17,25 @@ const initialValues = {
   passwordConfirmation: '',
 };
 
+type Response = SuccessResponse<{ user: User }>;
+
 type FormState = typeof initialValues;
 
+async function postSignup(registration: FormState): Promise<User> {
+  const response = await http.post<Response>(Routes.Registrations, {
+    registration,
+  });
+
+  return response.data.user;
+}
+
 const Signup: NextPage = () => {
+  const router = useRouter();
   const { setUser } = useSession();
 
-  const handleSubmit = (values: FormState) => {
-    setUser(async () => {
-      const { user } = await http.post(Routes.Registrations, values);
-      return user;
-    });
+  const handleSubmit = async (values: FormState) => {
+    await setUser(() => postSignup(values));
+    router.push(Routes.Campaigns);
   };
 
   return (

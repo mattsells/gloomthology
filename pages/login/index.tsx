@@ -1,5 +1,6 @@
 import { Form, Formik } from 'formik';
 import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
 
 import Button from '@/components/Button';
 import Input from '@/components/Input';
@@ -21,17 +22,19 @@ type Response = SuccessResponse<{ user: User }>;
 type FormState = typeof initialValues;
 
 // TODO: Move to reusable function
-async function postLogin(values: FormState): Promise<User> {
-  const response = await http.post<Response>(Routes.Sessions, values);
+async function postLogin(session: FormState): Promise<User> {
+  const response = await http.post<Response>(Routes.Sessions, { session });
   return response.data.user;
 }
 
 const Login: NextPage = () => {
-  const { setUser, user } = useSession();
+  const router = useRouter();
+  const { setUser } = useSession();
 
   const handleSubmit = async (values: FormState) => {
     try {
       await setUser(() => postLogin(values));
+      router.push(Routes.Campaigns);
     } catch (err) {
       // TODO: Create function to handle errors globally (ex show toast messages)
       if (isHttpError(err)) {

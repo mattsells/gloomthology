@@ -18,9 +18,7 @@ export default function useSession() {
   const prevUser = usePrevious(user);
 
   useEffect(() => {
-    if (user && !prevUser) {
-      router.push(Pages.Campaigns);
-    } else if (!user && prevUser) {
+    if (!user && prevUser) {
       router.push(Pages.Login);
     }
   }, [user, prevUser, router]);

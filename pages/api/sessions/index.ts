@@ -12,9 +12,11 @@ function get(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function post(req: NextApiRequest, res: NextApiResponse) {
+  const { email, password } = req.body.session;
+
   const user = await db.user.findUnique({
     where: {
-      email: req.body.email,
+      email,
     },
   });
 
@@ -25,7 +27,7 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const isPasswordValid = await bcrypt.compare(
-    req.body.password,
+    password,
     user.encryptedPassword
   );
 
