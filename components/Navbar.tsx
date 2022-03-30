@@ -38,8 +38,16 @@ export default function Navbar() {
                   </li>
 
                   <li className="px-3">
+                    <Link href="/players">
+                      <a className="flex items-center h-14 text-slate-50 text-lg">
+                        Players
+                      </a>
+                    </Link>
+                  </li>
+
+                  <li className="px-3">
                     <a
-                      className="flex items-center h-14 text-slate-50 text-lg"
+                      className="flex items-center h-14 text-rose-500 text-lg"
                       href="/logout"
                       onClick={handleLogOut}
                     >

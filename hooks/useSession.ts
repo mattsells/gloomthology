@@ -10,7 +10,6 @@ import { usePrevious } from './usePrevious';
 export default function useSession() {
   const router = useRouter();
 
-  // TODO: Update session to use success() formatter
   const { data: user, mutate: setUser } = useSWR(Routes.Sessions, () =>
     http.get(Routes.Sessions).then((res) => res.data.user)
   );
