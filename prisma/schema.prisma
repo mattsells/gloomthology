@@ -21,6 +21,8 @@ model User {
   campaigns          UsersOnCampaigns[]
   userConnections    Connection[]       @relation("UserConnections")
   contactConnections Connection[]       @relation("ContactConnections")
+  fromInvitations    Invitation[]       @relation("FromInvitations")
+  toInvitations      Invitation[]       @relation("ToInvitations")
 }
 
 model Campaign {
@@ -86,6 +88,19 @@ model Connection {
   userId    Int
 
   @@id([contactId, userId])
+}
+
+model Invitation {
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  declinedAt DateTime
+
+  from   User @relation("FromInvitations", fields: [fromId], references: [id])
+  fromId Int
+  to     User @relation("ToInvitations", fields: [toId], references: [id])
+  toId   Int
+
+  @@id([fromId, toId])
 }
 
 enum Role {
