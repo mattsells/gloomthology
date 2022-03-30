@@ -28,6 +28,11 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
       email,
       encryptedPassword,
     },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+    },
   });
 
   req.session.user = user;

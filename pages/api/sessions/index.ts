@@ -8,7 +8,7 @@ import { unauthenticated } from '@/lib/session/api';
 
 function get(req: NextApiRequest, res: NextApiResponse) {
   const user = req.session.user || null;
-  res.status(HttpStatus.Success).json({ user });
+  res.status(HttpStatus.Success).json(success({ user }));
 }
 
 async function post(req: NextApiRequest, res: NextApiResponse) {
@@ -17,6 +17,12 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
   const user = await db.user.findUnique({
     where: {
       email,
+    },
+    select: {
+      id: true,
+      email: true,
+      encryptedPassword: true,
+      name: true,
     },
   });
 
@@ -37,11 +43,13 @@ async function post(req: NextApiRequest, res: NextApiResponse) {
       .json(failure({ user: 'Password is not valid' }));
   }
 
-  req.session.user = user;
+  const { encryptedPassword, ...sessionUser } = user;
+
+  req.session.user = sessionUser;
 
   await req.session.save();
 
-  res.status(HttpStatus.Success).json(success({ user }));
+  res.status(HttpStatus.Success).json(success({ user: sessionUser }));
 }
 
 function destroy(req: NextApiRequest, res: NextApiResponse) {

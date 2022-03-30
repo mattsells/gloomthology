@@ -12,7 +12,7 @@ export default function useSession() {
 
   // TODO: Update session to use success() formatter
   const { data: user, mutate: setUser } = useSWR(Routes.Sessions, () =>
-    http.get(Routes.Sessions).then((res) => res.user)
+    http.get(Routes.Sessions).then((res) => res.data.user)
   );
 
   const prevUser = usePrevious(user);
