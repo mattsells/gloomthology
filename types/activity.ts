@@ -1,4 +1,4 @@
-import { Activity } from '@prisma/client';
+import { Activity, ScenarioResult } from '@prisma/client';
 
 export type ActivityWithData<T = any> = Omit<Activity, 'data'> & {
   data: T;
@@ -15,4 +15,10 @@ export type TraveledActivityData = {
   fromId: string;
   toName: string;
   toId: string;
+};
+
+export type ScenarioCompletedActivityData = {
+  locationName: string;
+  locationTag: string;
+  result: ScenarioResult;
 };

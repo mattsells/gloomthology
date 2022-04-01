@@ -284,7 +284,7 @@ const CampaignShow: NextPage<Props> = ({ locationOptions, scenario }) => {
                   </td>
                   <td className="p-3">
                     <Text appearance="body">
-                      {scenario ? 'In Progress' : 'Incomplete'}
+                      {scenario ? 'In Progress' : 'Not Started'}
                     </Text>
                   </td>
                   <td className="p-3 text-right">
