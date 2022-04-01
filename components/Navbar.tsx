@@ -37,13 +37,13 @@ export default function Navbar() {
                     </Link>
                   </li>
 
-                  <li className="px-3">
+                  {/* <li className="px-3">
                     <Link href="/players">
                       <a className="flex items-center h-14 text-slate-50 text-lg">
                         Players
                       </a>
                     </Link>
-                  </li>
+                  </li> */}
 
                   <li className="px-3">
                     <a

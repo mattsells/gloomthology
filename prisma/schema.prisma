@@ -37,6 +37,7 @@ model Campaign {
   roadEventStatus EventStatus        @default(Incomplete)
   location        Location           @relation(fields: [locationId], references: [id])
   locationId      Int
+  scenarios       Scenario[]
 }
 
 model UsersOnCampaigns {
@@ -58,9 +59,10 @@ model Location {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name     String
-  tag      String
-  campaign Campaign[]
+  name      String
+  tag       String
+  campaign  Campaign[]
+  scenarios Scenario[]
 
   @@unique([tag])
   @@index([tag])
@@ -103,6 +105,19 @@ model Invitation {
   @@id([fromId, toId])
 }
 
+model Scenario {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  campaign   Campaign        @relation(fields: [campaignId], references: [id])
+  campaignId Int
+  location   Location        @relation(fields: [locationId], references: [id])
+  locationId Int
+  result     ScenarioResult?
+}
+
 enum Role {
   Member
   Admin
@@ -118,4 +133,9 @@ enum ActivityType {
   CampaignCreated
   EventCompleted
   Traveled
+}
+
+enum ScenarioResult {
+  Failed
+  Success
 }

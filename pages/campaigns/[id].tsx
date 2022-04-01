@@ -1,4 +1,4 @@
-import { ActivityType, EventStatus } from '@prisma/client';
+import { ActivityType, EventStatus, Scenario } from '@prisma/client';
 import { Formik } from 'formik';
 import { withIronSessionSsr } from 'iron-session/next';
 import { useRouter } from 'next/router';
@@ -87,10 +87,19 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
     tag: location.tag,
   }));
 
+  const scenario = await db.scenario.findFirst({
+    where: {
+      completedAt: {
+        equals: null,
+      },
+    },
+  });
+
   return {
     props: {
       campaign,
       locationOptions,
+      scenario,
       user: req.session.user,
       fallback: {
         [`/activities?campaignId=${id}`]: activities,
@@ -106,6 +115,7 @@ type LocationOption = Option & {
 
 type Props = {
   locationOptions: LocationOption[];
+  scenario: Scenario;
   fallback: {
     [k: string]: CampaignWithRelations;
   };
@@ -117,7 +127,7 @@ type EventFormState = typeof eventFormState;
 const travelFormState = { tag: { value: 0, label: '', tag: '' } };
 type TravelFormState = { tag: LocationOption };
 
-const CampaignShow: NextPage<Props> = ({ locationOptions }) => {
+const CampaignShow: NextPage<Props> = ({ locationOptions, scenario }) => {
   const router = useRouter();
   const { id } = router.query;
 
@@ -213,6 +223,23 @@ const CampaignShow: NextPage<Props> = ({ locationOptions }) => {
     setIsTravelModalVisible(false);
   };
 
+  const handleStartScenario = async () => {
+    const data = {
+      scenario: {
+        campaignId: campaign.id,
+        locationId: campaign.locationId,
+      },
+    };
+
+    const response = await http.post(Routes.Scenarios, data);
+
+    router.push('/scenarios/' + response.data.scenario.id);
+  };
+
+  const handleViewScenario = () => {
+    router.push('/scenarios/' + scenario?.id);
+  };
+
   return (
     <>
       <Text as="h1" appearance="header" className="mb-4">
@@ -238,6 +265,7 @@ const CampaignShow: NextPage<Props> = ({ locationOptions }) => {
                   <td className="p-3 text-right">
                     <Button
                       className="w-full"
+                      disabled={!!scenario}
                       onClick={() => setIsTravelModalVisible(true)}
                     >
                       Travel
@@ -249,6 +277,32 @@ const CampaignShow: NextPage<Props> = ({ locationOptions }) => {
                   campaign={campaign}
                   onClickStart={() => setIsEventModalVisible(true)}
                 />
+
+                <tr>
+                  <td className="p-3">
+                    <Text appearance="body">Scenario:</Text>
+                  </td>
+                  <td className="p-3">
+                    <Text appearance="body">
+                      {scenario ? 'In Progress' : 'Incomplete'}
+                    </Text>
+                  </td>
+                  <td className="p-3 text-right">
+                    {scenario ? (
+                      <Button className="w-full" onClick={handleViewScenario}>
+                        Go To Scenario
+                      </Button>
+                    ) : (
+                      <Button
+                        className="w-full"
+                        disabled={!!scenario}
+                        onClick={handleStartScenario}
+                      >
+                        Start Scenario
+                      </Button>
+                    )}
+                  </td>
+                </tr>
               </tbody>
             </table>
           </Panel>

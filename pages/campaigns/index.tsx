@@ -1,4 +1,3 @@
-import { Campaign } from '@prisma/client';
 import { Formik } from 'formik';
 import { withIronSessionSsr } from 'iron-session/next';
 import type { NextPage } from 'next';
