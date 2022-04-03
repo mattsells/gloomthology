@@ -5,6 +5,7 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ReactElement, useState } from 'react';
+import { SWRConfig } from 'swr';
 
 import Button from '@/components/Button';
 import Modal from '@/components/Modal';
@@ -12,6 +13,7 @@ import Panel from '@/components/Panel';
 import Select from '@/components/Select';
 import Text from '@/components/Text';
 import db from '@/db';
+import useScenario from '@/hooks/useScenario';
 import http, { Routes } from '@/lib/http';
 import { sessionOptions } from '@/lib/session/config';
 import { Option } from '@/types/form';
@@ -45,6 +47,9 @@ export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
 
   return {
     props: {
+      fallback: {
+        [`/scenarios/${id}`]: scenario,
+      },
       scenario,
     },
   };
@@ -63,11 +68,16 @@ const resultOptions = Object.keys(ScenarioResult).map((key) => ({
 
 type Props = {
   scenario: Scenario;
+  fallback: {
+    [k: string]: Scenario;
+  };
 };
 
-const ScenarioShow: NextPage<Props> = ({ scenario }) => {
+const ScenarioShow: NextPage<Props> = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const router = useRouter();
+  const { id } = router.query;
+  const { scenario, setScenario } = useScenario(id as string);
 
   const handleSubmitForm = async (values: FormState) => {
     const scenarioData: ScenarioUpdateData = {
@@ -85,9 +95,13 @@ const ScenarioShow: NextPage<Props> = ({ scenario }) => {
       },
     };
 
-    const scenarioRequest = http.patch('/scenarios/' + scenario.id, {
-      scenario: scenarioData,
-    });
+    const scenarioRequest = setScenario(
+      http
+        .patch('/scenarios/' + scenario.id, {
+          scenario: scenarioData,
+        })
+        .then((res) => res.data.scenario)
+    );
 
     const activityRequest = http.post(Routes.Activities, {
       activity: activityData,
@@ -95,7 +109,7 @@ const ScenarioShow: NextPage<Props> = ({ scenario }) => {
 
     await Promise.all([scenarioRequest, activityRequest]);
 
-    router.reload();
+    setIsModalVisible(false);
   };
 
   return (
@@ -198,7 +212,7 @@ const ScenarioShow: NextPage<Props> = ({ scenario }) => {
   );
 };
 
-function StatusText({ scenario }: Props): ReactElement {
+function StatusText({ scenario }: Pick<Props, 'scenario'>): ReactElement {
   if (!scenario.completedAt) {
     return <Text appearance="body">Not Started</Text>;
   }
@@ -210,4 +224,12 @@ function StatusText({ scenario }: Props): ReactElement {
   return <span className="text-rose-500 text-xl">Failed</span>;
 }
 
-export default ScenarioShow;
+const Wrapper: NextPage<Props> = (props) => {
+  return (
+    <SWRConfig value={{ fallback: props.fallback }}>
+      <ScenarioShow {...props} />
+    </SWRConfig>
+  );
+};
+
+export default Wrapper;
