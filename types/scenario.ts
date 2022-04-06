@@ -1,7 +1,7 @@
 import { Campaign, Location, ScenarioResult } from '@prisma/client';
 
 export type Scenario = {
-  id: string;
+  id: number;
   campaign: Campaign;
   campaignId: string;
   completedAt: Nullable<string>;

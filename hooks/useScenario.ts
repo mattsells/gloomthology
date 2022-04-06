@@ -1,7 +1,8 @@
 import useSWR, { KeyedMutator } from 'swr';
 
-import http from '@/lib/http';
 import { Scenario } from '@/types/scenario';
+import { fetcher } from '@/utils/api';
+import { to } from '@/utils/url';
 
 type UseScenario = {
   scenario: Scenario;
@@ -10,18 +11,23 @@ type UseScenario = {
   setScenario: KeyedMutator<any>;
 };
 
-export default function useScenario(id: string): UseScenario {
-  const url = `/scenarios/${id}`;
+const getScenario = fetcher('scenario');
+
+export default function useScenario(id: string | number): UseScenario {
+  const url = to.scenario(id);
+
+  const params = {
+    include: {
+      campaign: true,
+      location: true,
+    },
+  };
 
   const {
     data,
     error,
     mutate: setScenario,
-  } = useSWR(url, () =>
-    http.get(url).then((res) => {
-      return res.data.scenario;
-    })
-  );
+  } = useSWR([url, params], getScenario);
 
   return {
     scenario: data,

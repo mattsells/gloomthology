@@ -1,40 +1,32 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import db from '@/db';
+import { toApiResponse } from '@/lib/api/error';
+import { authenticate } from '@/lib/auth/authenticate';
 import { HttpStatus } from '@/lib/http';
-import { error, failure, success } from '@/lib/http/response';
+import { error, success } from '@/lib/http/response';
 import { authenticated } from '@/lib/session/api';
+import * as ScenarioService from '@/services/scenarios';
 
 async function get(req: NextApiRequest, res: NextApiResponse) {
-  const { user } = req.session;
-  const { id } = req.query;
+  try {
+    const user = authenticate(req);
+    const id = Number(req.query.id);
 
-  // Need to check if user is logged in
-  if (!user) {
-    return res
-      .status(HttpStatus.Unauthorized)
-      .json(failure('You are not logged in'));
+    console.log('INCLUDE IS', req.query.include);
+
+    const { scenario } = await ScenarioService.show({ id, user });
+
+    return res.status(HttpStatus.Success).json(
+      success({
+        scenario,
+      })
+    );
+  } catch (err) {
+    const { data, status } = toApiResponse(err);
+
+    return res.status(status).json(data);
   }
-
-  const scenario = await db.scenario.findUnique({
-    where: {
-      id: Number(id),
-    },
-    include: {
-      campaign: true,
-      location: true,
-    },
-  });
-
-  if (!scenario) {
-    return res.status(HttpStatus.NotFound).json(failure('Scenario not found'));
-  }
-
-  return res.status(HttpStatus.Success).json(
-    success({
-      scenario,
-    })
-  );
 }
 
 async function patch(req: NextApiRequest, res: NextApiResponse) {

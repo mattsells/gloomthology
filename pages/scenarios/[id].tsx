@@ -5,54 +5,40 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ReactElement, useState } from 'react';
-import { SWRConfig } from 'swr';
 
 import Button from '@/components/Button';
 import Modal from '@/components/Modal';
 import Panel from '@/components/Panel';
 import Select from '@/components/Select';
 import Text from '@/components/Text';
-import db from '@/db';
-import useScenario from '@/hooks/useScenario';
+import { authenticate } from '@/lib/auth/authenticate';
 import http, { Routes } from '@/lib/http';
+import { toPageProps } from '@/lib/pages/error';
 import { sessionOptions } from '@/lib/session/config';
+import * as ScenarioService from '@/services/scenarios';
 import { Option } from '@/types/form';
 import { Scenario, ScenarioUpdateData } from '@/types/scenario';
 import { currentTime } from '@/utils/date';
 import { titleize } from '@/utils/string';
 
 export const getServerSideProps = withIronSessionSsr(async ({ req, query }) => {
-  const { user } = req.session;
-  const { id } = query;
+  try {
+    const user = authenticate(req);
+    const id = Number(query.id);
 
-  // Need to check if user is logged in
-  if (!user) {
+    const { scenario } = await ScenarioService.show({
+      id,
+      user,
+    });
+
     return {
-      redirect: {
-        permanent: false,
-        destination: '/login',
+      props: {
+        scenario,
       },
     };
+  } catch (err) {
+    return toPageProps(err);
   }
-
-  const scenario = await db.scenario.findUnique({
-    where: {
-      id: Number(id),
-    },
-    include: {
-      campaign: true,
-      location: true,
-    },
-  });
-
-  return {
-    props: {
-      fallback: {
-        [`/scenarios/${id}`]: scenario,
-      },
-      scenario,
-    },
-  };
 }, sessionOptions);
 
 const formState = { result: { value: '', label: '' } };
@@ -73,11 +59,11 @@ type Props = {
   };
 };
 
-const ScenarioShow: NextPage<Props> = () => {
+const ScenarioShow: NextPage<Props> = ({ scenario }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const router = useRouter();
   const { id } = router.query;
-  const { scenario, setScenario } = useScenario(id as string);
+  // const { scenario, setScenario } = useScenario(id as string);
 
   const handleSubmitForm = async (values: FormState) => {
     const scenarioData: ScenarioUpdateData = {
@@ -95,13 +81,9 @@ const ScenarioShow: NextPage<Props> = () => {
       },
     };
 
-    const scenarioRequest = setScenario(
-      http
-        .patch('/scenarios/' + scenario.id, {
-          scenario: scenarioData,
-        })
-        .then((res) => res.data.scenario)
-    );
+    const scenarioRequest = http.patch('/scenarios/' + scenario.id, {
+      scenario: scenarioData,
+    });
 
     const activityRequest = http.post(Routes.Activities, {
       activity: activityData,
@@ -110,6 +92,7 @@ const ScenarioShow: NextPage<Props> = () => {
     await Promise.all([scenarioRequest, activityRequest]);
 
     setIsModalVisible(false);
+    router.replace(router.asPath);
   };
 
   return (
@@ -225,11 +208,7 @@ function StatusText({ scenario }: Pick<Props, 'scenario'>): ReactElement {
 }
 
 const Wrapper: NextPage<Props> = (props) => {
-  return (
-    <SWRConfig value={{ fallback: props.fallback }}>
-      <ScenarioShow {...props} />
-    </SWRConfig>
-  );
+  return <ScenarioShow {...props} />;
 };
 
 export default Wrapper;
