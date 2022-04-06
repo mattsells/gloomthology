@@ -278,31 +278,33 @@ const CampaignShow: NextPage<Props> = ({ locationOptions, scenario }) => {
                   onClickStart={() => setIsEventModalVisible(true)}
                 />
 
-                <tr>
-                  <td className="p-3">
-                    <Text appearance="body">Scenario:</Text>
-                  </td>
-                  <td className="p-3">
-                    <Text appearance="body">
-                      {scenario ? 'In Progress' : 'Not Started'}
-                    </Text>
-                  </td>
-                  <td className="p-3 text-right">
-                    {scenario ? (
-                      <Button className="w-full" onClick={handleViewScenario}>
-                        Go To Scenario
-                      </Button>
-                    ) : (
-                      <Button
-                        className="w-full"
-                        disabled={!!scenario}
-                        onClick={handleStartScenario}
-                      >
-                        Start Scenario
-                      </Button>
-                    )}
-                  </td>
-                </tr>
+                {campaign.location.tag !== Locations.Home && (
+                  <tr>
+                    <td className="p-3">
+                      <Text appearance="body">Scenario:</Text>
+                    </td>
+                    <td className="p-3">
+                      <Text appearance="body">
+                        {scenario ? 'In Progress' : 'Not Started'}
+                      </Text>
+                    </td>
+                    <td className="p-3 text-right">
+                      {scenario ? (
+                        <Button className="w-full" onClick={handleViewScenario}>
+                          Go To Scenario
+                        </Button>
+                      ) : (
+                        <Button
+                          className="w-full"
+                          disabled={!!scenario}
+                          onClick={handleStartScenario}
+                        >
+                          Start Scenario
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </Panel>
