@@ -9,7 +9,7 @@ import {
   transitionProperty,
 } from 'tailwindcss-classnames';
 
-type Appearance = 'primary' | 'secondary';
+type Appearance = 'primary' | 'secondary' | 'destructive';
 type Type = 'button' | 'submit' | 'reset' | undefined;
 
 type Props = React.HTMLProps<HTMLButtonElement> & {
@@ -25,18 +25,24 @@ const styles = {
   ) => {
     const isPrimary = appearance === 'primary';
     const isSecondary = appearance === 'secondary';
+    const isDestructive = appearance === 'destructive';
 
     return classnames(
       className,
       padding('p-2'),
       borderRadius('rounded'),
-      textColor({ 'text-zinc-200': isPrimary, 'text-zinc-600': isSecondary }),
+      textColor({
+        'text-zinc-200': isPrimary || isDestructive,
+        'text-zinc-600': isSecondary,
+      }),
       transitionProperty('transition'),
       backgroundColor({
         'bg-indigo-700': isPrimary,
         'hover:bg-indigo-800': isPrimary && !isDisabled,
         'bg-indigo-50': isSecondary,
         'hover:bg-indigo-100': isSecondary && !isDisabled,
+        'bg-rose-600': isDestructive,
+        'hover:bg-rose-700': isDestructive && !isDisabled,
       }),
       opacity({ 'opacity-60': isDisabled })
     );

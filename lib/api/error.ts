@@ -17,6 +17,8 @@ export function toApiResponse(err: any) {
     };
   }
 
+  console.log('error', err);
+
   return {
     data: 'An unknown error has occurred',
     status: HttpStatus.ServerError,

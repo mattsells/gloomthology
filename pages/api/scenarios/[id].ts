@@ -13,8 +13,6 @@ async function get(req: NextApiRequest, res: NextApiResponse) {
     const user = authenticate(req);
     const id = Number(req.query.id);
 
-    console.log('INCLUDE IS', req.query.include);
-
     const { scenario } = await ScenarioService.show({ id, user });
 
     return res.status(HttpStatus.Success).json(
